@@ -1,0 +1,13 @@
+name: neuralnet-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - scikit-learn
+  - tensorflow
+  - pip
+  - pip:
+      - tqdm
