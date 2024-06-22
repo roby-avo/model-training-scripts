@@ -9,8 +9,11 @@ BATCH_SIZE = 32768
 def load_and_rank_predictions(df, model, columns):
     # Keep only the specified columns for prediction
     X = df[columns]
-    # Get model scores
-    df['score'] = model.predict(X, batch_size=BATCH_SIZE)
+    # Get model scores and pick the score for class in position 1
+    scores = model.predict(X, batch_size=BATCH_SIZE)
+    if scores.ndim > 1:  # If scores have more than one dimension, extract class 1 scores
+        scores = scores[:, 1]
+    df['score'] = scores
     # Rank by model score and keep the first one for each group
     df = df.sort_values(by=['group', 'score'], ascending=[True, False])
     df = df.groupby("group").first().reset_index()
