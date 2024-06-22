@@ -40,24 +40,45 @@ conda install -c conda-forge tqdm
 
 Alternatively, you can create the environment from the provided YAML file:
 
-1.	Create a file named environment.yml with the following content:
+1. **Create a file named `environment.yml` with the following content**:
 
-name: neuralnet-env
-channels:
-  - defaults
-  - conda-forge
-dependencies:
-  - python=3.8
-  - numpy
-  - pandas
-  - scikit-learn
-  - tensorflow
-  - pip
-  - pip:
-      - tqdm
+    ```yaml
+    name: neuralnet-env
+    channels:
+      - defaults
+      - conda-forge
+    dependencies:
+      - python=3.8
+      - numpy
+      - pandas
+      - scikit-learn
+      - tensorflow
+      - pip
+      - pip:
+          - tqdm
+    ```
 
-2.	Create the environment using the YAML file:
-conda env create -f environment.yml
+2. **Create the environment using the YAML file**:
 
-3.	Activate the Environment:
-conda activate neuralnet-env
+    ```sh
+    conda env create -f environment.yml
+    ```
+
+3. **Activate the Environment**:
+
+    ```sh
+    conda activate neuralnet-env
+    ```
+
+## Usage
+
+### Command-Line Arguments
+
+- `training_file`: Path to the training CSV file.
+- `--columns_to_exclude`: List of columns to exclude from training (optional).
+- `--target_column`: Name of the target column.
+
+### Example Command
+
+```sh
+python train_model.py path/to/training_data.csv --columns_to_exclude column1 column2 --target_column target
