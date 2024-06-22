@@ -4,11 +4,13 @@ import json
 import pandas as pd
 from keras.models import load_model
 
+BATCH_SIZE = 32768
+
 def load_and_rank_predictions(df, model, columns):
     # Keep only the specified columns for prediction
     X = df[columns]
     # Get model scores
-    df['score'] = model.predict(X)
+    df['score'] = model.predict(X, batch_size=BATCH_SIZE)
     # Rank by model score and keep the first one for each group
     df = df.sort_values(by=['group', 'score'], ascending=[True, False])
     df = df.groupby("group").first().reset_index()
