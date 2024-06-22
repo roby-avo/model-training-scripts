@@ -4,9 +4,9 @@ import json
 import pandas as pd
 from keras.models import load_model
 
-def load_and_rank_predictions(df, model):
-    # Drop the specified columns for prediction
-    X = df.drop(columns=["tableName", "key", "group", "target"])
+def load_and_rank_predictions(df, model, columns):
+    # Keep only the specified columns for prediction
+    X = df[columns]
     # Get model scores
     df['score'] = model.predict(X)
     # Rank by model score and keep the first one for each group
@@ -28,7 +28,10 @@ def compute_performance(pred_dir, model_path, annotations_file):
     
     # Load the annotations file
     with open(annotations_file, 'r') as f:
-        annotations_dict = json.load(f)
+        data = json.load(f)
+    
+    columns = data["columns"]
+    annotations_dict = data["datasets"]
     
     for dataset, expected_annotations in annotations_dict.items():
         pred_file = os.path.join(pred_dir, f"{dataset}.csv")
@@ -36,7 +39,7 @@ def compute_performance(pred_dir, model_path, annotations_file):
         if os.path.exists(pred_file):
             df = pd.read_csv(pred_file)
             # Rank predictions and filter
-            predictions = load_and_rank_predictions(df, model)
+            predictions = load_and_rank_predictions(df, model, columns)
             
             correct_annotations = count_correct_annotations(predictions)
             precision = correct_annotations / predictions.shape[0]

@@ -1,15 +1,18 @@
 {
-    "2T_2022": 586117,
-    "2T-2020": 667243,
-    "biodiv3": 2011,
-    "hardtabler1": 1405,
-    "hardtabler2": 1982,
-    "HardTableR2-2021": 47439,
-    "HardTableR3-2021": 58948,
-    "Mammotab": 9740,
-    "Round1_T2D": 8078,
-    "Round3": 390456,
-    "Round4": 994920,
-    "turl_latest2": 1800,
-    "wikidatatables2023r1": 4246
+    "columns": ["ntoken_mention", "ntoken_entity", "length_mention", "length_entity", "popularity", "es_score", "ed_score", "jaccard_score", "jaccardNgram_score", "p_subj_ne", "p_subj_lit_datatype", "p_subj_lit_all_datatype", "p_subj_lit_row", "p_obj_ne", "desc", "descNgram", "cta_t1", "cta_t2", "cta_t3", "cta_t4", "cta_t5", "cpa_t1", "cpa_t2", "cpa_t3", "cpa_t4", "cpa_t5"],
+    "datasets": {
+        "2T_2022": 586117,
+        "2T-2020": 667243,
+        "biodiv3": 2011,
+        "hardtabler1": 1405,
+        "hardtabler2": 1982,
+        "HardTableR2-2021": 47439,
+        "HardTableR3-2021": 58948,
+        "Mammotab": 9740,
+        "Round1_T2D": 8078,
+        "Round3": 390456,
+        "Round4": 994920,
+        "turl_latest2": 1800,
+        "wikidatatables2023r1": 4246
+    }
 }
