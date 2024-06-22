@@ -4,6 +4,7 @@ import argparse
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.utils import to_categorical
@@ -26,6 +27,10 @@ def train_model(training_file, columns_to_exclude, target_column):
     
     # Split the dataset into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, categorical_y, test_size=0.2, random_state=42)
+    
+    # Compute class weights
+    class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(encoded_y), y=encoded_y)
+    class_weights = {i: class_weights[i] for i in range(len(class_weights))}
     
     # Define the Neural Network structure with L2 regularization
     model = Sequential([
@@ -50,8 +55,8 @@ def train_model(training_file, columns_to_exclude, target_column):
     # Early stopping callback
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
     
-    # Train the Neural Network with early stopping
-    model.fit(X_train, y_train, epochs=100, batch_size=BATCH_SIZE, validation_split=0.2, callbacks=[early_stopping])
+    # Train the Neural Network with early stopping and class weights
+    model.fit(X_train, y_train, epochs=100, batch_size=BATCH_SIZE, validation_split=0.2, callbacks=[early_stopping], class_weight=class_weights)
     
     # Evaluate the model on the test set
     loss, accuracy = model.evaluate(X_test, y_test, batch_size=BATCH_SIZE)
