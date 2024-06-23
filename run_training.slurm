@@ -30,7 +30,7 @@ training_file="training/training.csv"
 config_file="config.json"
 
 # Run the Python script
-srun python -u training.py $training_file --columns_to_exclude tableName key group --target_column target > Run.log 2>&1
+srun python -u training.py $training_file --json_config_file $config_file > Run.log 2>&1
 
 echo ""
 echo "***** DONE *****"
