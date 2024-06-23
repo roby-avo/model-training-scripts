@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 import argparse
 import json
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.models import Sequential
@@ -11,6 +9,7 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.metrics import classification_report
 
 BATCH_SIZE = 32768
 
@@ -34,16 +33,13 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
     encoded_y = label_encoder.fit_transform(y)
     categorical_y = to_categorical(encoded_y)
     
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, categorical_y, test_size=0.2, random_state=42)
-    
     # Compute class weights
     class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(encoded_y), y=encoded_y)
     class_weights = {i: class_weights[i] for i in range(len(class_weights))}
     
     # Define the Neural Network structure with L2 regularization
     model = Sequential([
-        Dense(64, activation='relu', input_shape=(X_train.shape[1],), kernel_regularizer='l2'),
+        Dense(64, activation='relu', input_shape=(X.shape[1],), kernel_regularizer='l2'),
         Dropout(0.5),
         Dense(128, activation='relu', kernel_regularizer='l2'),
         Dropout(0.5),
@@ -53,7 +49,7 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
         Dropout(0.5),
         Dense(64, activation='relu', kernel_regularizer='l2'),
         Dropout(0.5),
-        Dense(y_train.shape[1], activation='softmax')  # Output layer neurons = number of classes
+        Dense(categorical_y.shape[1], activation='softmax')  # Output layer neurons = number of classes
     ])
     
     # Compile the model
@@ -65,18 +61,19 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     
     # Train the Neural Network with early stopping and class weights
-    model.fit(X_train, y_train, epochs=100, batch_size=BATCH_SIZE, validation_split=0.2, callbacks=[early_stopping], class_weight=class_weights)
+    model.fit(X, categorical_y, epochs=100, batch_size=BATCH_SIZE, validation_split=0.1, callbacks=[early_stopping], class_weight=class_weights)
     
-    # Evaluate the model on the test set
-    loss, accuracy = model.evaluate(X_test, y_test, batch_size=BATCH_SIZE)
-    print(f"Test loss: {loss:.4f}, Test accuracy: {accuracy:.4f}")
+    # Evaluate the model on the validation set
+    val_loss, val_accuracy = model.evaluate(X[int(0.8 * len(X)):], categorical_y[int(0.8 * len(y)):], batch_size=BATCH_SIZE)
+    print(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.4f}")
     
     # Make predictions
-    predictions = model.predict(X_train, batch_size=BATCH_SIZE)
+    predictions = model.predict(X[int(0.8 * len(X)):], batch_size=BATCH_SIZE)
     predictions = np.argmax(predictions, axis=1)
     
     # Calculate the classification report
-    report = classification_report(np.argmax(y_train, axis=1), predictions)
+    report = classification_report(np.argmax(categorical_y[int(0.8 * len(y)):], axis=1), predictions)
+    print(report)
     
     # Print out the classification report to a file
     report_filename = f"report_{training_file.split('/')[-1].split('.')[0]}.txt"
