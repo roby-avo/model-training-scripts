@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import argparse
+import json
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
@@ -13,10 +14,20 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 BATCH_SIZE = 32768
 
-def train_model(training_file, columns_to_exclude, target_column):
+def train_model(training_file, json_config_file):
     data = pd.read_csv(training_file)
+
+    # Read the JSON configuration file
+    with open(json_config_file, 'r') as file:
+        config = json.load(file)
     
+    # Set specified columns to 0
+    columns_to_zero = config.get('columns_to_zero', [])
+    data[columns_to_zero] = 0
+
     # Preprocess your data: remove unwanted columns
+    columns_to_exclude = config.get('columns_to_exclude', [])
+    target_column = config.get('target_column')
     X = data.drop(columns=columns_to_exclude + [target_column])
     y = data[target_column]
     
@@ -53,7 +64,7 @@ def train_model(training_file, columns_to_exclude, target_column):
                   metrics=['accuracy'])
     
     # Early stopping callback
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
     
     # Train the Neural Network with early stopping and class weights
     model.fit(X_train, y_train, epochs=100, batch_size=BATCH_SIZE, validation_split=0.2, callbacks=[early_stopping], class_weight=class_weights)
@@ -83,11 +94,10 @@ def train_model(training_file, columns_to_exclude, target_column):
 def main():
     parser = argparse.ArgumentParser(description='Train a neural network model on the provided dataset.')
     parser.add_argument('training_file', type=str, help='Path to the training CSV file.')
-    parser.add_argument('--columns_to_exclude', type=str, nargs='+', default=[], help='List of columns to exclude from training.')
-    parser.add_argument('--target_column', type=str, required=True, help='Name of the target column.')
+    parser.add_argument('--json_config_file', type=str, required=True, help='Path to the JSON configuration file.')
 
     args = parser.parse_args()
-    train_model(args.training_file, args.columns_to_exclude, args.target_column)
+    train_model(args.training_file, args.json_config_file)
 
 if __name__ == '__main__':
     main()
