@@ -5,7 +5,7 @@ import json
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
@@ -37,17 +37,22 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
     class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(encoded_y), y=encoded_y)
     class_weights = {i: class_weights[i] for i in range(len(class_weights))}
     
-    # Define the Neural Network structure with L2 regularization
+    # Define the Neural Network structure with Batch Normalization and L2 regularization
     model = Sequential([
         Dense(64, activation='relu', input_shape=(X.shape[1],), kernel_regularizer='l2'),
+        BatchNormalization(),
         Dropout(0.5),
         Dense(128, activation='relu', kernel_regularizer='l2'),
+        BatchNormalization(),
         Dropout(0.5),
         Dense(256, activation='relu', kernel_regularizer='l2'),
+        BatchNormalization(),
         Dropout(0.5),
         Dense(128, activation='relu', kernel_regularizer='l2'),
+        BatchNormalization(),
         Dropout(0.5),
         Dense(64, activation='relu', kernel_regularizer='l2'),
+        BatchNormalization(),
         Dropout(0.5),
         Dense(categorical_y.shape[1], activation='softmax')  # Output layer neurons = number of classes
     ])
@@ -64,15 +69,15 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
     model.fit(X, categorical_y, epochs=100, batch_size=BATCH_SIZE, validation_split=0.1, callbacks=[early_stopping], class_weight=class_weights)
     
     # Evaluate the model on the validation set
-    val_loss, val_accuracy = model.evaluate(X[int(0.8 * len(X)):], categorical_y[int(0.8 * len(y)):], batch_size=BATCH_SIZE)
+    val_loss, val_accuracy = model.evaluate(X[int(0.9 * len(X)):], categorical_y[int(0.9 * len(y)):], batch_size=BATCH_SIZE)
     print(f"Validation loss: {val_loss:.4f}, Validation accuracy: {val_accuracy:.4f}")
     
     # Make predictions
-    predictions = model.predict(X[int(0.8 * len(X)):], batch_size=BATCH_SIZE)
+    predictions = model.predict(X[int(0.9 * len(X)):], batch_size=BATCH_SIZE)
     predictions = np.argmax(predictions, axis=1)
     
     # Calculate the classification report
-    report = classification_report(np.argmax(categorical_y[int(0.8 * len(y)):], axis=1), predictions)
+    report = classification_report(np.argmax(categorical_y[int(0.9 * len(y)):], axis=1), predictions)
     print(report)
     
     # Print out the classification report to a file
