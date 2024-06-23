@@ -62,7 +62,7 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
                   metrics=['accuracy'])
     
     # Early stopping callback
-    early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     
     # Train the Neural Network with early stopping and class weights
     model.fit(X_train, y_train, epochs=100, batch_size=BATCH_SIZE, validation_split=0.2, callbacks=[early_stopping], class_weight=class_weights)
