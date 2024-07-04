@@ -4,7 +4,6 @@ import zipfile
 import argparse
 import json
 import tempfile
-import shutil
 from tqdm import tqdm
 
 def extract_zip(zip_path, extract_to):
