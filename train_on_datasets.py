@@ -12,7 +12,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.metrics import classification_report
 
-BATCH_SIZE = 100000
+BATCH_SIZE = 32768
 
 def train_model(training_file, columns_to_exclude, target_column, json_config_file, output_dir):
     data = pd.read_csv(training_file)
@@ -22,8 +22,8 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
         config = json.load(file)
     
     # Set specified columns to 0
-    columns_to_zero = config.get('columns_to_zero', [])
-    data[columns_to_zero] = 0
+    #columns_to_zero = config.get('columns_to_zero', [])
+    #data[columns_to_zero] = 0
 
     # Preprocess your data: remove unwanted columns
     X = data.drop(columns=columns_to_exclude + [target_column])
@@ -80,6 +80,9 @@ def train_model(training_file, columns_to_exclude, target_column, json_config_fi
     # Calculate the classification report
     report = classification_report(np.argmax(categorical_y[int(0.9 * len(y)):], axis=1), predictions)
     print(report)
+    
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
     
     # Save the classification report to a file
     report_filename = os.path.join(output_dir, f"report_{os.path.basename(training_file).split('.')[0]}.txt")

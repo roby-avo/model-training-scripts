@@ -5,6 +5,7 @@
 #SBATCH --ntasks 1
 #SBATCH --mem=64GB
 #SBATCH --cpus-per-task=1
+#SBATCH --gres gpu:a30:1
 #SBATCH --time 00-24:00:00
 
 # ENABLE ACCESS TO CONDA ENVIRONMENTS
