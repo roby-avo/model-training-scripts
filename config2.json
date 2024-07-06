@@ -1,0 +1,5 @@
+{
+    "columns_to_remove": ["cpa_r1", "cpa_r2", "cpa_r3", "cpa_r4", "cpa_r5"],
+    "ignore_columns": ["tableName", "key", "group", "target"],
+    "columns_to_zero": ["cta_t1", "cta_t2", "cta_t2", "cta_t3", "cta_t4", "cta_t5" , "cpa_t1", "cpa_t2", "cpa_t3", "cpa_t4", "cpa_t5"]
+}
