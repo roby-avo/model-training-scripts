@@ -1,0 +1,5 @@
+{
+    "columns_to_remove": ["ambiguity_mention", "ncorrects_tokens", "pos_score", "cpa_r1", "cpa_r2", "cpa_r3", "cpa_r4", "cpa_r5"],
+    "ignore_columns": ["tableName", "key", "group", "target"],
+    "columns_to_zero": []
+}
